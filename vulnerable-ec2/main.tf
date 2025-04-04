@@ -1,4 +1,11 @@
 terraform {
+  cloud {
+    organization = "new-workshop-data"
+    workspaces {
+      name = "Security-Iac-Workshop"
+    }
+  }
+
   required_providers {
     aws = {
       source = "hashicorp/aws"
@@ -25,7 +32,7 @@ resource "aws_security_group" "allow_ssh_from_anywhere" {
     # WORKSHOP: Modify the following line to a CIDR block specific to you, and uncomment the next line with 0.0.0.0
     # This line allows SSH access from any IP address
 #    cidr_blocks      = ["0.0.0.0/0"]
-    cidr_blocks      = ["0.0.0.0/0"]
+    cidr_blocks      = ["186.54.188.72/32"]
   }
 
   egress {
@@ -53,7 +60,7 @@ resource "aws_security_group" "allow_port_80_from_anywhere" {
     # WORKSHOP: Modify the following line to a CIDR block specific to you, and uncomment the next line with 0.0.0.0
     # This line allows HTTP access from any IP address
 #    cidr_blocks      = ["0.0.0.0/0"]
-    cidr_blocks      = ["0.0.0.0/0"]
+    cidr_blocks      = ["186.54.188.72/32"]
   }
 
   egress {
@@ -97,11 +104,11 @@ resource "aws_instance" "ec2" {
   EOF
 
   # WORKSHOP: Add the name of your key here
-#  key_name = "mam-workshop-keypair"
+  key_name = "mam-workshop-keypair-new"
 
   # WORKSHOP: uncomment the lines below to enable encrypted block device
-#  root_block_device {
-#    encrypted = true
-#  }
+  root_block_device {
+    encrypted = true
+  }
 
 }

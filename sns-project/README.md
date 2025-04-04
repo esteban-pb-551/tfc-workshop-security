@@ -33,7 +33,7 @@ terraform init
 * Execute the import command:
 
 ``` bash
-terraform aws_servicecatalogappregistry_application.terraform_app {APP_ID}
+terraform import aws_servicecatalogappregistry_application.terraform_app {APP_ID}
 ```
 
 ### Plan the Deployment
