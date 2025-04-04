@@ -1,0 +1,25 @@
+version: '3.8'
+services:
+  cn-toolbox:
+    container_name: cn-toolbox
+    image: cn-toolbox
+    entrypoint: ["entrypoint"]
+    extra_hosts:
+      - "${CLUSTER_ENDPOINT:-localhost}:127.0.0.1"
+    build:
+      context: .
+    environment:
+      PROXY_HOST: ""
+      CLUSTER_ENDPOINT: "${CLUSTER_ENDPOINT:-localhost}"
+      AWS_VAULT: "${AWS_VAULT:-}"
+      AWS_DEFAULT_REGION: "${AWS_DEFAULT_REGION:-}"
+      AWS_REGION: "${AWS_REGION:-}"
+      AWS_ACCESS_KEY_ID: "${AWS_ACCESS_KEY_ID:-}"
+      AWS_SECRET_ACCESS_KEY: "${AWS_SECRET_ACCESS_KEY:-}"
+      AWS_SESSION_TOKEN: "${AWS_SESSION_TOKEN:-}"
+      AWS_SECURITY_TOKEN: "${AWS_SECURITY_TOKEN:-}"
+      AWS_SESSION_EXPIRATION: "${AWS_SECRET_ACCESS_KEY:-}"
+    volumes:
+      - type: bind
+        source: "${PWD}/../"
+        target: /infra/
