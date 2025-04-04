@@ -1,23 +1,35 @@
-terraform {
-  cloud {
-    organization = "new-workshop-data"
-    workspaces {
-      name = "Security-Iac-Workshop"
-    }
+provider "aws" {
+  region = var.aws_region
+  default_tags {
+    tags = {
+      env             = var.environment
+      owner           = "Ops"
+      applicationName = var.application_name
+      awsApplication  = aws_servicecatalogappregistry_application.terraform_app.application_tag.awsApplication
+      version         = var.version_app
+      service         = var.application_name
+      terraform       = "true"
+    }    
   }
-
-  required_providers {
-    aws = {
-      source = "hashicorp/aws"
-      version = "4.28.0"
-    }
-  }
+  
+  # Make it faster by skipping something
+  skip_metadata_api_check     = true
+  skip_region_validation      = true
+  skip_credentials_validation = true
 }
 
+# Create application using aliased 'application' provider
 provider "aws" {
-  # Configuration options
-  # WORKSHOP: Specify the region you like to use, especially if you plan on using your keypair to access your EC2 instance.
-  region = "us-east-2"
+  alias = "application"
+  region = var.aws_region
+}
+
+# Register new application
+# An AWS Service Catalog AppRegistry Application is displayed in the AWS Console under "MyApplications".
+resource "aws_servicecatalogappregistry_application" "terraform_app" {
+  provider    = aws.application
+  name        = var.application_name
+  description = "Terraform EC2 vulnerable example"
 }
 
 resource "aws_security_group" "allow_ssh_from_anywhere" {
@@ -104,11 +116,38 @@ resource "aws_instance" "ec2" {
   EOF
 
   # WORKSHOP: Add the name of your key here
-  key_name = "mam-workshop-keypair-new"
+  key_name = "mam-workshop-keypair"
 
   # WORKSHOP: uncomment the lines below to enable encrypted block device
   root_block_device {
     encrypted = true
   }
 
+}
+
+# DynamoDB Table - example
+resource "aws_dynamodb_table" "example" {
+  name         = "my_table"
+  billing_mode = "PAY_PER_REQUEST"
+  hash_key     = "id"
+
+  attribute {
+    name = "id"
+    type = "S"
+  }
+
+  point_in_time_recovery {
+    enabled = true
+  }
+}
+
+resource "aws_sns_topic" "my_topic" {
+  name = "ec2_topic"  # Name of the SNS topic
+}
+
+# Create an email subscription to the SNS topic
+resource "aws_sns_topic_subscription" "email_subscription" {
+  topic_arn = aws_sns_topic.my_topic.arn  # Reference the ARN of the created topic
+  protocol  = "email"                     # Use the email protocol
+  endpoint  = "estebanpbuday@yahoo.es"    # The email address to subscribe
 }
